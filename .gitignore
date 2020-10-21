@@ -2,3 +2,5 @@
 Cargo.lock
 /generated
 /node_modules
+/pkg
+yarn-error.log

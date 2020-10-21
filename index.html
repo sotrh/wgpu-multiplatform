@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebGPU with HTML5</title>
+    <style>
+        #wgpu-display {
+            border: purple 1px solid;
+            padding: 0px;
+        }
+    </style>
 </head>
 <body>
+    <div id="wgpu-display">
+        <!-- WGPU should init here -->
+    </div>
+    <noscript>
+        This example requires javascript to be enabled.
+    </noscript>
     <script type="module">
         import init from "../generated/wgpu-multiplatform.js";
         init();
