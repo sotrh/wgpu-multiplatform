@@ -1,0 +1,12 @@
+{
+  "name": "wgpu-multiplatform",
+  "version": "1.0.0",
+  "description": "Example of using WebGPU on mutliple platforms",
+  "main": "index.js",
+  "repository": "git@github.com:sotrh/wgpu-multiplatform.git",
+  "author": "Ben Hansen <bhbenjaminhansen@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "html5": "python3 -m http.server"
+  }
+}
