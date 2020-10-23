@@ -1,16 +1,37 @@
 <template>
     <div id="wgpu-display">
+        <WgpuError v-if="wgpuErrorOccurred"></WgpuError>
+        <Spinner v-if="loading"></Spinner>
         <!-- WebGPU content should go here -->
     </div>
 </template>
 <script>
-// import { demo } from "wgpu-multiplatform"
+import Spinner from 'vue-simple-spinner'
 export default {
+    components: {
+        Spinner,
+    },
+    data() {
+        return {
+            wgpuErrorOccurred: false,
+            loading: false,
+        }
+    },
     mounted() {
+        this.loading = true;
         import("wgpu-multiplatform").then(module => {
-            console.log(module);
-            module.demo();
-        })
+            console.debug("Loaded module!");
+            console.debug(module);
+            this.loading = false;
+
+            try {
+                module.demo(512, 512, "wgpu-display");
+                this.wgpuErrorOccurred = false;
+            } catch {
+                console.log("An error occurred")
+                this.wgpuErrorOccurred = true;
+            }
+        });
     }
 }
 </script>

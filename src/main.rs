@@ -1,5 +1,6 @@
 use wgpu_multiplatform::demo;
+use anyhow::*;
 
-fn main() {
-    demo();
+fn main() -> Result<()> {
+    demo(800, 600)
 }

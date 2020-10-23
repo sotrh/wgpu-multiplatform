@@ -1,4 +1,5 @@
 use anyhow::*;
+#[cfg(target_arch="wasm32")]
 use wasm_bindgen::prelude::*;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -57,12 +58,7 @@ impl Demo {
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Main Pipeline Layout"),
             bind_group_layouts: &[],
-            push_constant_ranges: &[
-                // wgpu::PushConstantRange {
-                //     stages: wgpu::ShaderStage::FRAGMENT,
-                //     range: 0..4,
-                // },
-            ],
+            push_constant_ranges: &[],
         });
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: None,
@@ -122,7 +118,7 @@ impl Demo {
                         depth_stencil_attachment: None,
                     });
                     pass.set_pipeline(&self.pipeline);
-                    pass.draw(0..3, 0..1);
+                    pass.draw(0..6, 0..1);
                 }
                 self.queue.submit(Some(encoder.finish()));
             }
@@ -180,40 +176,47 @@ async fn run(
     })
 }
 
-#[wasm_bindgen]
-pub fn demo() {
+#[inline]
+pub fn create_display(width: u32, height: u32) -> Result<(EventLoop<()>, Window)> {
+    use winit::dpi::LogicalSize;
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
-        .with_title("WebGPU on Nuxt")
-        .build(&event_loop)
-        .unwrap();
+        .with_title(format!("WebGPU on {}", "Multiple Platforms")) // TODO: replace with cfg target
+        .with_inner_size(LogicalSize::new(width, height))
+        .build(&event_loop)?;
+    
+    Ok((event_loop, window))
+}
 
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        subscriber::initialize_default_subscriber(None);
-        futures::executor::block_on(run(event_loop, window, wgpu::TextureFormat::Bgra8UnormSrgb));
-    }
 
-    #[cfg(target_arch = "wasm32")]
-    {
-        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-        console_log::init().expect("Could not initialize logger");
-        
-        use winit::platform::web::WindowExtWebSys;
-        web_sys::window()
-            .expect("Could not find window!")
-            .document()
-            .expect("Could not find document for window!")
-            .get_element_by_id("wgpu-display")
-            .expect("Could not find element #wgpu-display!")
-            .append_child(&web_sys::Element::from(window.canvas()))
-            .expect("Could not append canvas to #wgpu-display!");
-            // .and_then(|win| win.document())
-            // .and_then(|doc| doc.body())
-            // .and_then(|body| {
-            //     body.append_child(&web_sys::Element::from(window.canvas())).ok()
-            // })
-            // .expect("Could not append canvas to document body");
-        wasm_bindgen_futures::spawn_local(run(event_loop, window, wgpu::TextureFormat::Bgra8Unorm));
-    }
+#[cfg(target_arch="wasm32")]
+#[cfg_attr(target_arch="wasm32", wasm_bindgen)]
+pub fn demo(width: u32, height: u32, id: &str) -> Result<(), wasm_bindgen::JsValue> {
+    let (event_loop, window) = create_display(width, height).unwrap();
+
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    console_log::init().unwrap();
+    
+    use winit::platform::web::WindowExtWebSys;
+    web_sys::window()
+        .expect("Could not find window!")
+        .document()
+        .expect("Could not find document for window!")
+        .get_element_by_id(id)
+        .expect(&format!("Could not find element {}!", id))
+        .append_child(&web_sys::Element::from(window.canvas()))
+        .expect(&format!("Could not append canvas to {}!", id));
+    wasm_bindgen_futures::spawn_local(run(event_loop, window, wgpu::TextureFormat::Bgra8Unorm));
+
+    Ok(())
+}
+
+#[cfg(not(target_arch="wasm32"))]
+pub fn demo(width: u32, height: u32) -> Result<()> {
+    let (event_loop, window) = create_display(width, height)?;
+
+    subscriber::initialize_default_subscriber(None);
+    futures::executor::block_on(run(event_loop, window, wgpu::TextureFormat::Bgra8UnormSrgb));
+
+    Ok(())
 }
