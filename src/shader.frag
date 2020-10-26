@@ -62,7 +62,6 @@ void main() {
     float d = rayMarch(ro, rd);
 
     vec3 p = ro + rd * d;
-
     float light = getLight(p, rd);
 
     vec3 col = vec3(light);
