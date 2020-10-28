@@ -6,8 +6,6 @@
   "repository": "git@github.com:sotrh/wgpu-multiplatform.git",
   "author": "Ben Hansen <bhbenjaminhansen@gmail.com>",
   "license": "MIT",
-  "private":true,
-  "workspaces":["pkg"],
   "scripts": {
     "html5": "python3 -m http.server",
     "vuepress": "RUST_LOG=info RUSTFLAGS=--cfg=web_sys_unstable_apis vuepress dev vuepress",
@@ -20,7 +18,6 @@
     "wasm-loader": "^1.3.0"
   },
   "dependencies": {
-    "vue-simple-spinner": "^1.2.10",
-    "wgpu_multiplatform": "1.0.0"
+    "vue-simple-spinner": "^1.2.10"
   }
 }
