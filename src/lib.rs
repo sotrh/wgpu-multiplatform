@@ -196,6 +196,8 @@ pub fn demo(width: u32, height: u32, id: &str) -> Result<(), wasm_bindgen::JsVal
 
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init().unwrap();
+
+    println!("Creating window...");
     
     use winit::platform::web::WindowExtWebSys;
     web_sys::window()
@@ -206,7 +208,12 @@ pub fn demo(width: u32, height: u32, id: &str) -> Result<(), wasm_bindgen::JsVal
         .expect(&format!("Could not find element {}!", id))
         .append_child(&web_sys::Element::from(window.canvas()))
         .expect(&format!("Could not append canvas to {}!", id));
+    // TODO: separate Demo creation logic from simulation loop. That way
+    // we can update the js canvas to display a static image if we can't
+    // create a Wgpu context.
     wasm_bindgen_futures::spawn_local(run(event_loop, window, wgpu::TextureFormat::Bgra8Unorm));
+
+    println!("Window created");
 
     Ok(())
 }

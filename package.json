@@ -8,8 +8,8 @@
   "license": "MIT",
   "scripts": {
     "html5": "python3 -m http.server",
-    "vuepress": "RUSTFLAGS=--cfg=web_sys_unstable_apis vuepress dev vuepress",
-    "vuepress-build": "RUSTFLAGS=--cfg=web_sys_unstable_apis vuepress build vuepress"
+    "vuepress": "RUST_LOG=info RUSTFLAGS=--cfg=web_sys_unstable_apis vuepress dev vuepress",
+    "vuepress-build": "RUST_LOG=info RUSTFLAGS=--cfg=web_sys_unstable_apis vuepress build vuepress"
   },
   "devDependencies": {
     "@open-wc/webpack-import-meta-loader": "^0.4.7",

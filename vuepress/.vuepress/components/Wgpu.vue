@@ -6,7 +6,7 @@
     </div>
 </template>
 <script>
-import Spinner from 'vue-simple-spinner'
+import Spinner from 'vue-simple-spinner/src/components/Spinner'
 export default {
     components: {
         Spinner,
@@ -19,6 +19,7 @@ export default {
     },
     mounted() {
         this.loading = true;
+        
         import("wgpu-multiplatform").then(module => {
             console.debug("Loaded module!");
             console.debug(module);
