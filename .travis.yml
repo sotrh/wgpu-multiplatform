@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - lts/*
 install:
-  - yarn install
+  - sh setup.sh
 script:
   - yarn vuepress-build
 deploy:
