@@ -7,7 +7,7 @@
   "author": "Ben Hansen <bhbenjaminhansen@gmail.com>",
   "license": "MIT",
   "private":true,
-  "workspaces":["wgpu_multiplatform"],
+  "workspaces":["pkg"],
   "scripts": {
     "html5": "python3 -m http.server",
     "vuepress": "RUST_LOG=info RUSTFLAGS=--cfg=web_sys_unstable_apis vuepress dev vuepress",
