@@ -4,7 +4,7 @@ node_js:
 install:
   - sh setup.sh
 script:
-  - yarn vuepress-build
+  - yarn build
 deploy:
   provider: pages
   skip_cleanup: true
