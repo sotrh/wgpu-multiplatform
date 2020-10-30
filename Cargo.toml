@@ -33,3 +33,4 @@ fs_extra = "1.2"
 glob = "0.3"
 rayon = "1.4"
 shaderc = "0.6"
+naga = { version = "0.2", features = ["spirv", "pomelo"], git = "https://github.com/gfx-rs/naga" }

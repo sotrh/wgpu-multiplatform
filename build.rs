@@ -2,6 +2,7 @@ use anyhow::*;
 // use fs_extra::copy_items;
 // use fs_extra::dir::CopyOptions;
 use glob::glob;
+use naga::back::spv::{Writer, WriterFlags};
 use rayon::prelude::*;
 // use std::env;
 use std::fs::{read_to_string, write};
@@ -41,6 +42,42 @@ impl ShaderData {
 }
 
 fn main() -> Result<()> {
+    let mut shader_paths = Vec::new();
+    shader_paths.extend(glob("./src/**/*.vert")?);
+    shader_paths.extend(glob("./src/**/*.frag")?);
+    shader_paths.extend(glob("./src/**/*.comp")?);
+    shader_paths.into_par_iter().map(|glob_result| {
+        let src_path = glob_result?;
+        let extension = src_path.extension()
+            .context("File has no extension!")?
+            .to_str()
+            .context("Extensions cannot be converted to &str!")?;
+
+        let stage = match extension {
+            "vert" => naga::ShaderStage::Vertex,
+            "frag" => naga::ShaderStage::Fragment,
+            "comp" => naga::ShaderStage::Compute,
+            _ => bail!("Unsupported shader: {}", src_path.display()),
+        };
+
+        let spv_path = src_path.with_extension(format!("{}.spv", extension));
+        let src = read_to_string(src_path)?;
+        let module = naga::front::glsl::parse_str(&src, "main", stage);
+
+        let spv = Writer::new(&module.header, WriterFlags::NONE).write(&module);
+        let bytes = spv
+            .iter()
+            .fold(Vec::with_capacity(spv.len() * 4), |mut v, w| {
+                v.extend_from_slice(&w.to_le_bytes());
+                v
+            });
+        
+        write(&spv_path, bytes.as_slice())
+            .context(format!("Unable to write shader to file: {}", spv_path.display()))
+    }).collect::<Result<_>>()
+}
+
+fn main_old() -> Result<()> {
     // Collect all shaders recursively within /src/
     // UDPATED!
     let mut shader_paths = Vec::new();
