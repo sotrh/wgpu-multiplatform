@@ -20,13 +20,14 @@ export default {
     mounted() {
         this.loading = true;
         
-        import("wgpu-multiplatform").then(module => {
+        import("demo").then(module => {
             console.debug("Loaded module!");
             console.debug(module);
             this.loading = false;
 
             try {
                 module.demo(512, 512, "wgpu-display");
+                console.log("No errors reported");
                 this.wgpuErrorOccurred = false;
             } catch {
                 console.log("An error occurred")
