@@ -1,15 +1,26 @@
-language: node_js
-node_js:
-  - lts/*
-install:
-  - sh setup.sh
-script:
-  - yarn build
-deploy:
-  provider: pages
-  skip_cleanup: true
-  local_dir: vuepress/.vuepress/dist
-  github_token: $GITHUB_TOKEN
-  keep_history: true
-  on:
-    branch: master
+matrix:
+  include:
+    - language: rust
+      rust:
+        - stable
+      install:
+        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      jobs:
+        allow_failures:
+          - rust: nightly
+        fast_finish: true
+    - language: node_js
+      node_js:
+        - lts/*
+      install:
+        - sh setup.sh
+      script:
+        - yarn workspace wgpu-multiplatform-vuepress build
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: vuepress/.vuepress/dist
+        github_token: $GITHUB_TOKEN
+        keep_history: true
+        on:
+          branch: master
