@@ -1,4 +1,4 @@
-use wgpu_multiplatform::demo;
+use demo::demo;
 use anyhow::*;
 
 fn main() -> Result<()> {
