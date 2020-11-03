@@ -52,7 +52,16 @@ float getLight(vec3 p, vec3 rd) {
     vec3 half_dir = normalize(rd + l);
     float spec = pow(max(dot(n, half_dir), 0.0), 32);
 
-    return diffuse + spec;
+    // Shadow
+    float d = rayMarch(p + n * SURF_DIST * 2.0, l);
+
+    float light = diffuse + spec;
+
+    if (d < length(lightPos - p)) {
+        light *= 0.1;
+    }
+
+    return light;
 }
 
 void main() {
