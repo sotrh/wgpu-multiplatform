@@ -5,6 +5,9 @@ use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::{Window, WindowBuilder};
 
+mod uniforms;
+use uniforms::*;
+
 pub struct Demo {
     surface: wgpu::Surface,
     sc_desc: wgpu::SwapChainDescriptor,
@@ -12,6 +15,8 @@ pub struct Demo {
     device: wgpu::Device,
     queue: wgpu::Queue,
     pipeline: wgpu::RenderPipeline,
+    uniforms: Uniforms,
+    last_time: std::time::Instant,
 }
 
 impl Demo {
@@ -52,12 +57,14 @@ impl Demo {
         };
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
+        let uniforms = Uniforms::new(&device);
+
         let vs_module = device.create_shader_module(wgpu::include_spirv!("shader.vert.spv"));
         let fs_module = device.create_shader_module(wgpu::include_spirv!("shader.frag.spv"));
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Main Pipeline Layout"),
-            bind_group_layouts: &[],
+            bind_group_layouts: &[&uniforms.layout],
             push_constant_ranges: &[],
         });
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -91,6 +98,8 @@ impl Demo {
             device,
             queue,
             pipeline,
+            uniforms,
+            last_time: std::time::Instant::now(),
         })
     }
 
@@ -103,6 +112,10 @@ impl Demo {
     pub fn render(&mut self) {
         match self.swap_chain.get_current_frame() {
             Ok(frame) => {
+                let now = std::time::Instant::now();
+                let dt = (now - self.last_time).as_secs_f32();
+                self.last_time = now;
+                self.uniforms.update(&self.queue, dt);
                 let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Render Encoder"),
                 });
@@ -118,6 +131,7 @@ impl Demo {
                         depth_stencil_attachment: None,
                     });
                     pass.set_pipeline(&self.pipeline);
+                    pass.set_bind_group(0, &self.uniforms.bind_group, &[]);
                     pass.draw(0..6, 0..1);
                 }
                 self.queue.submit(Some(encoder.finish()));
@@ -135,6 +149,7 @@ async fn run(
     sc_format: wgpu::TextureFormat,
 ) {
     let mut demo: Demo = Demo::new(&window, sc_format).await.unwrap();
+    let mut render_requested = true;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
@@ -170,6 +185,13 @@ async fn run(
             }
             Event::RedrawRequested(_) => {
                 demo.render();
+                render_requested = false;
+            }
+            Event::MainEventsCleared => {
+                if !render_requested {
+                    window.request_redraw();
+                    render_requested = true;
+                }
             }
             _ => {}
         }

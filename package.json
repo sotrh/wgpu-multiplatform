@@ -1,4 +1,8 @@
 {
     "private": true,
-    "workspaces": ["vuepress", "demo/pkg"]
+    "workspaces": ["vuepress", "demo/pkg"],
+    "scripts": {
+        "serve": "yarn workspace wgpu-multiplatform-vuepress serve",
+        "build": "yarn workspace wgpu-multiplatform-vuepress build"
+    }
 }
