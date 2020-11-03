@@ -5,12 +5,12 @@ node_js:
   - lts/*
 install:
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+  - sh setup.sh
 jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
 script:
-  - sh setup.sh
   - yarn workspace wgpu-multiplatform-vuepress build
 deploy:
   provider: pages
