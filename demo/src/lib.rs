@@ -249,3 +249,9 @@ pub fn demo(width: u32, height: u32) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(all(target_os = "android", not(target_arch="wasm32")))]
+#[cfg_attr(target_os = "android", ndk_glue::main(backtrace = "on"))]
+pub fn main() {
+    demo(800, 600).unwrap(); // TODO
+}

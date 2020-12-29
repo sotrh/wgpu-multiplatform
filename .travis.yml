@@ -2,7 +2,7 @@ language: rust
 rust:
   - stable
 node_js:
-  - stable
+  - node
 install:
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
   - sh setup.sh
